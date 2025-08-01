@@ -11,6 +11,8 @@ Follow these steps to run the notebook on your local machine:
 2. Install the required packages
 
 	pip install -r requirements.txt
+	pip install streamlit
+
 
 3. Download the dataset
 
@@ -24,4 +26,8 @@ Follow these steps to run the notebook on your local machine:
 
 	jupyter notebook Notebooks/dataOverview.ipynb
 
+5. Run Model
+
+	streamlit run app.py
+	
 ## What we learned
