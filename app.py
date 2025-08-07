@@ -7,6 +7,7 @@ import joblib
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, roc_curve, auc
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+import random
 
 # Load your model and data
 @st.cache_resource
@@ -25,14 +26,15 @@ st.sidebar.title("Navigation")
 section = st.sidebar.radio("Go to", [
     "1. Data Overview",
     "2. Preprocessing",
-    "3. Performance",
+    "3. Model Performance",
+    "4. Predict"
 ])
 
 # 1. Data Overview
 if section == "1. Data Overview":
     st.title("Data Overview")
     st.markdown("""
-    The dataset contains transactions made by credit cards in September 2013 by European cardholders. This dataset presents transactions that occured over a period of two days, where there were 492 frauds out of 284,807 transactions.""")
+    The dataset contains transactions made by credit cards in September 2013 by European cardholders. This dataset presents transactions that occurred over a period of two days, where there were 492 frauds out of 284,807 transactions.""")
     st.subheader(f"Dataset Shape {df.shape}")
     st.write("Rows:", df.shape[0])
     st.write("Cols:", df.shape[1])
@@ -55,7 +57,13 @@ if section == "1. Data Overview":
     
     st.subheader("Class Distribution (Fraud vs Not Fraud):")
     st.write("The dataset is highly unbalanced, the positive class (frauds) account for 0.172 percent of all transactions.")
+    fig, ax = plt.subplots()
+    sns.countplot(x='Class', data=df, ax=ax)
+    ax.set_title("Class Distribution")
+    st.pyplot(fig)
     st.write(df["Class"].value_counts())
+
+
     
     
     st.subheader("Correlation Heatmap:")
@@ -73,7 +81,7 @@ elif section == "2. Preprocessing":
     st.write(df.corr()['Class'].sort_values(ascending=False))
     
     st.subheader("2. Scaling features (sklearn StandardScaler)")
-    st.write("Next we decided to scale our amount feature using sklearn's StandardScaler due to its high variation and becasue the other features were PCA transformed.")
+    st.write("We scaled the amount feature using sklearn's StandardScaler due to its high variation and to ensure consistency with the PCA-transformed features.")
     st.markdown("Before Scaling")
     st.write(df['Amount'])
     
@@ -82,8 +90,7 @@ elif section == "2. Preprocessing":
     st.write(scaled_amount)
     
     st.subheader("3. Testing and Training")
-    st.write("Finally we did a test training split of 80 to 20. 80 percent of the data went to training, and 20 percent went to testing.")
-    
+    st.write("In order to evaluate our model's performance on unseen data, we split the dataset into 80% training and 20%. This ensured that the model did not overfit to the training set and we can receive accurate results.")
     scaler = StandardScaler()
     X_train, X_test, y_train, y_test = train_test_split(df.drop(columns=['Class']), df['Class'], test_size=0.2, random_state=42)
     X_train['Amount_scaled'] = scaler.fit_transform(X_train[['Amount']])
@@ -93,10 +100,9 @@ elif section == "2. Preprocessing":
     st.write(f"Testing set shape: {X_test.shape}")
     
 # 3. Performance
-elif section == "3. Performance":
+elif section == "3. Model Performance":
     st.title("Model Performance & Predictions")
-    st.write("During model training and testing, we prioritized optimizing model recall to ensure that the most fraudulent transactions as possible were correctly identified. This focus helped minimize false negatives, which is critical in fraud detection.")
-    st.write("To identify model recall we used the sklearn.metrics x classification_report.")
+    st.write("During model training and testing, we prioritized optimizing model recall to ensure that the most fraudulent transactions as possible were correctly identified. This focus helped minimize false negatives, which is critical in fraud detection. We used the sklearn.metrics classification_report to identify our models achieved recall.")
 
     scaler = StandardScaler()
     X_train, X_test, y_train, y_test = train_test_split(df.drop(columns=['Class']), df['Class'], test_size=0.2, random_state=42)
@@ -110,7 +116,8 @@ elif section == "3. Performance":
     
     y_pred = model.predict(X_test_drop)
 
-    st.subheader("Classification Report (Original)")
+    st.subheader("Classification Report")
+    st.write("Originally our model was achieving 79 percent recall. In order to increase this score we decided to use GridSearch Cross Validation (GridSearchCV) from sklearn.model_selection. GridSearchCV searches over a grid of hyperparameter combinations using cross-validation to find the best-performing model configuration. As a result of this, we were able to achieve 83 percent recall for our model.")
     report = classification_report(y_test, y_pred, output_dict=True)
     st.dataframe(pd.DataFrame(report).transpose())
 
@@ -119,3 +126,27 @@ elif section == "3. Performance":
     fig, ax = plt.subplots()
     ConfusionMatrixDisplay(cm).plot(ax=ax)
     st.pyplot(fig)
+
+
+elif section == "4. Predict":
+    # App title and info
+    st.title('Credit Card Fraud Detection')
+    st.markdown('Enter transaction data to predict if it is fraudulent.')
+
+    # Input fields for V1 to V28 and Amount_scaled
+    feature_values = {}
+    session_state = {}
+    st.header("Enter Transaction Features")    
+    
+    for i in range(1, 29):  # Display Features V1 to V28
+        feature_values[f"V{i}"] = st.number_input(f"V{i}", value=0.0, step=0.01)
+
+    feature_values["Amount_scaled"] = st.number_input("Amount_scaled", value=0.0, step=0.01)
+
+    # Predict button
+    if st.button("Predict Fraud"):
+        input_data = pd.DataFrame([feature_values])
+        result = model.predict(input_data)[0] # grab input
+        st.write(f"Prediction: {'Fraud' if result == 1 else 'Not Fraud'}")
+
+        
