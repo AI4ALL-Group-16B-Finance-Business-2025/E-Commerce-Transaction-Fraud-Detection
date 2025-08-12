@@ -7,19 +7,29 @@ import joblib
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, roc_curve, auc
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-import random
+import gdown
 
-# Load your model and data
+# File upload widget
+uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+
+if uploaded_file is not None:
+    # Read CSV
+    df = pd.read_csv(uploaded_file)
+    
+    # Show preview
+    st.write("First 5 rows:")
+    st.dataframe(df.head())
+else:
+    st.info("Please upload a CSV file first")
+
+# Load your model
 @st.cache_resource
 def load_model():
     return joblib.load("WRS_model.sav")  # Replace with your model path
 
-@st.cache_data
-def load_data():
-    return pd.read_csv("Data/creditcard.csv")  # Replace with your dataset path
+
 
 model = load_model()
-df = load_data()
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
