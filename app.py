@@ -8,6 +8,10 @@ from sklearn.metrics import classification_report, confusion_matrix, ConfusionMa
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
+
+
+st.subheader("Download Dataset")
+st.write("https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud")
 # File upload widget
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
