@@ -7,7 +7,6 @@ import joblib
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, roc_curve, auc
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-import gdown
 
 # File upload widget
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
