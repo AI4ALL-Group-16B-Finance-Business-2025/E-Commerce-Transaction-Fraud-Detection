@@ -27,8 +27,6 @@ else:
 def load_model():
     return joblib.load("WRS_model.sav")  # Replace with your model path
 
-
-
 model = load_model()
 
 # Sidebar Navigation
