@@ -43,6 +43,9 @@ if section == "1. Data Overview":
     st.title("Data Overview")
     st.markdown("""
     The dataset contains transactions made by credit cards in September 2013 by European cardholders. This dataset presents transactions that occurred over a period of two days, where there were 492 frauds out of 284,807 transactions.""")
+    if 'df' not in locals():
+        st.warning("Please upload a CSV file first")
+        st.stop()
     st.subheader(f"Dataset Shape {df.shape}")
     st.write("Rows:", df.shape[0])
     st.write("Cols:", df.shape[1])
@@ -86,6 +89,9 @@ elif section == "2. Preprocessing":
     st.subheader("1. Feature Correlation (Greatest to Least)")
     st.write("The first step we took during our preprocessing stage was to organize our data by their correlation to the classification. We did this in order to identify the most influential features in a classification.")
     st.write("We evaluated our model by removing and dropping different features during our training phase.")
+    if 'df' not in locals():
+        st.warning("Please upload a CSV file first")
+        st.stop()
     st.write(df.corr()['Class'].sort_values(ascending=False))
     
     st.subheader("2. Scaling features (sklearn StandardScaler)")
@@ -111,7 +117,9 @@ elif section == "2. Preprocessing":
 elif section == "3. Model Performance":
     st.title("Model Performance & Predictions")
     st.write("During model training and testing, we prioritized optimizing model recall to ensure that the most fraudulent transactions as possible were correctly identified. This focus helped minimize false negatives, which is critical in fraud detection. We used the sklearn.metrics classification_report to identify our models achieved recall.")
-
+    if 'df' not in locals():
+        st.warning("Please upload a CSV file first")
+        st.stop()
     scaler = StandardScaler()
     X_train, X_test, y_train, y_test = train_test_split(df.drop(columns=['Class']), df['Class'], test_size=0.2, random_state=42)
     X_train['Amount_scaled'] = scaler.fit_transform(X_train[['Amount']])
